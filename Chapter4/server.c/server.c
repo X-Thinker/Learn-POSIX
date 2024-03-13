@@ -72,7 +72,7 @@ void *tty_server_routine(void *arg)
             break;
         case REQ_READ:
             if(strlen(request->prompt) > 0)
-                printf(request->prompt);
+                printf("%s\n", request->prompt);
             if(fgets(request->text, 128, stdin) == NULL)
                 request->text[0] = '\0';
             len = strlen(request->text);
@@ -108,7 +108,7 @@ void *tty_server_routine(void *arg)
     }
     return NULL;
 }
-
+//服务器处理请求
 void tty_server_request(int operation, int sync, const char *prompt, char *string)
 {
     request_t *request;
@@ -117,6 +117,8 @@ void tty_server_request(int operation, int sync, const char *prompt, char *strin
     status = pthread_mutex_lock(&tty_server.mutex);
     if(status != 0)
         err_abort(status, "Lock server mutex");
+    
+    //服务器未运行则创建一个线程处理请求
     if(!tty_server.running)
     {
         pthread_t thread;
@@ -142,6 +144,7 @@ void tty_server_request(int operation, int sync, const char *prompt, char *strin
     request->next = NULL;
     request->operation = operation;
     request->synchronous = sync;
+    //同步请求则初始化条件变量
     if(sync)
     {
         request->done_flag = 0;
@@ -149,6 +152,7 @@ void tty_server_request(int operation, int sync, const char *prompt, char *strin
         if(status != 0)
             err_abort(status, "Init request condition");
     }
+
     if(prompt != NULL)
         strncpy(request->prompt, prompt, 32);
     else
@@ -170,12 +174,14 @@ void tty_server_request(int operation, int sync, const char *prompt, char *strin
         tty_server.last = request;
     }
 
+    //唤醒服务器线程来处理请求
     status = pthread_cond_signal(&tty_server.request);
     if(status != 0)
         err_abort(status, "Wake server");
     
     if(sync)
     {
+        //等待请求被完成
         while(!request->done_flag)
         {
             status = pthread_cond_wait(&request->done, &tty_server.mutex);
@@ -194,19 +200,21 @@ void tty_server_request(int operation, int sync, const char *prompt, char *strin
             err_abort(status, "Destroy request condition");
         free(request);
     }
+
     status = pthread_mutex_unlock(&tty_server.mutex);
     if(status != 0)
         err_abort(status, "Unlock mutex");
 }
-
+//客户端线程函数
 void *client_routine(void *arg)
 {
     int my_number = (int)arg, loops;
     char prompt[32];
-    char string[128], formatted[128];
+    char string[128], formatted[256];
     int status;
 
     sprintf(prompt, "Client %d> ", my_number);
+    //服务器进行读请求，从stdin上读取内容到string中并循环打印四次
     while(1)
     {
         tty_server_request(REQ_READ, 1, prompt, string);
