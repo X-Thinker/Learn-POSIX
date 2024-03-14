@@ -5,7 +5,7 @@
 
 typedef struct team_tag
 {
-    int         join_i;
+    int         join_i;//最后一个分包线程的索引
     pthread_t   workers[THREADS];
 } team_t;
 
@@ -24,6 +24,7 @@ void cleanup(void *arg)
 
     for(count = team->join_i; count < THREADS; count++)
     {
+        //取消后分离线程
         status = pthread_cancel(team->workers[count]);
         if(status != 0)
             err_abort(status, "Cancel worker");
@@ -80,6 +81,7 @@ int main(int argc, char *argv[])
     sleep(5);
     printf("Cancelling...\n");
 
+    //取消承包线程，清除函数将处理未连接的分包线程
     status = pthread_cancel(thread_id);
     if(status != 0)
         err_abort(status, "Cancel team");

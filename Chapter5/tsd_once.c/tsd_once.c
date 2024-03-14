@@ -25,6 +25,7 @@ void *thread_routine(void *arg)
     tsd_t *value;
     int status;
     
+    //保证key只被初始化一次
     status = pthread_once(&key_once, once_routine);
     if(status != 0)
         err_abort(status, "Once init");
