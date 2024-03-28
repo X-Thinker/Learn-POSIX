@@ -145,7 +145,7 @@ int workq_destroy(workq_t *wq)
 
         while(wq->counter > 0)
         {
-            status = pthread_cond_wait(&wq.cv, &wq->mutex);
+            status = pthread_cond_wait(&wq->cv, &wq->mutex);
             if(status != 0)
             {
                 pthread_mutex_unlock(&wq->mutex);
@@ -192,7 +192,7 @@ int workq_add(workq_t *wq, void *element)
 
     if(wq->idle > 0)
     {
-        status = pthread_cond_signal(&wq.cv);
+        status = pthread_cond_signal(&wq->cv);
         if(status != 0)
         {
             pthread_mutex_unlock(&wq->mutex);

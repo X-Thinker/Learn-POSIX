@@ -114,7 +114,7 @@ int main(int argc, char *argv[])
     for(data_count = 0; data_count < DATASIZE; data_count++)
     {
         data_updates += data[data_count].updates;
-        printf("data %02d: value %d updates\n", data_count, data[data_count].data, data[data_count].updates);
+        printf("data %02d: value %d, %d updates\n", data_count, data[data_count].data, data[data_count].updates);
         rwl_destroy(&data[data_count].lock);
     }
 
