@@ -17,6 +17,7 @@ void signal_catcher(int sig)
 void *sem_waiter(void *arg)
 {
     int number = *((int*)arg);
+    delete arg;
     int counter;
     for(counter = 1; counter <= 5; counter++)
     {
@@ -53,7 +54,8 @@ int main(int argc, char *argv[])
 
     for(thread_count = 0; thread_count < 5; thread_count++)
     {
-        status = pthread_create(&sem_waiters[thread_count], NULL, sem_waiter, (void*)thread_count);
+        void *thd_param = new int;
+        status = pthread_create(&sem_waiters[thread_count], NULL, sem_waiter, thd_param);
         if(status != 0)
             err_abort(status, "Create thread");
     }
