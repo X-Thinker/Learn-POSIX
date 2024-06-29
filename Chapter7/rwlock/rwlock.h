@@ -6,9 +6,9 @@ typedef struct rwlock_tag
     pthread_cond_t      read;
     pthread_cond_t      write;
     int                 valid;
-    int                 r_active;
+    int                 r_active; /* 目前使用读锁的线程数 */
     int                 w_active;
-    int                 r_wait;
+    int                 r_wait;   /* 目前等待使用读锁的线程数 */
     int                 w_wait;
 } rwlock_t;
 
