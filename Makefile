@@ -10,7 +10,8 @@ SUBDIRS := Chapter1/alarm_fork.c Chapter1/alarm_thread.c \
 		   Chapter5/once.c Chapter5/sched_attr.c Chapter5/sched_thread.c \
 		   Chapter5/tsd_destructor.c Chapter5/tsd_once.c Chapter5/thread_attr.c \
 		   Chapter6/atfork.c Chapter6/flock.c \
-		   Chapter6/putchar.c Chapter6/getlogin.c 
+		   Chapter6/putchar.c Chapter6/getlogin.c \
+		   Chapter7/barrier Chapter7/rwlock Chapter7/workq
 
 CFLAGS = -I$(shell pwd)
 export CFLAGS
@@ -24,7 +25,7 @@ all:
 	done
 
 clean:
-	@for dir in $(SUBDIRS); do \
+	-@for dir in $(SUBDIRS); do \
 		echo "Cleaning in $$dir"; \
 		$(MAKE) -C $$dir clean; \
 	done
